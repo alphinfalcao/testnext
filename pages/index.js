@@ -1,7 +1,33 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
+import { gql } from "@apollo/client";
+import client from "../apollo-client.js";
 
-export default function Home() {
+
+export async function getStaticProps() {
+  const { loading, error, data } = await client.query({
+    query: gql`
+    query {
+      characters{
+        results{
+          name
+          status
+          image
+        }
+      }
+    }
+    `,
+  });
+
+  return {
+    props: {
+      characters: data.characters.results
+    },
+ };
+}
+
+export default function Home({ characters }) {
+  console.log(characters)
   return (
     <div className={styles.container}>
       <Head>
@@ -20,33 +46,15 @@ export default function Home() {
         </p>
 
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+          {characters.map((character) => (
+            <div key={character.name} className={styles.card}>
+              <h3>{character.name}</h3>
+              <img src={character.image} alt={character.name}/>
+              <p>
+                {character.status}
+              </p>
+            </div>
+          ))}
         </div>
       </main>
 
