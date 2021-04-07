@@ -2,13 +2,14 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import { gql } from "@apollo/client";
 import client from "../apollo-client.js";
+import React, {useState} from 'react';
 
 
 export async function getStaticProps() {
   const { loading, error, data } = await client.query({
     query: gql`
     query {
-      characters{
+      characters(filter: { name: "morty" }){
         results{
           name
           status
@@ -18,7 +19,7 @@ export async function getStaticProps() {
     }
     `,
   });
-
+  console.log(searchinput)
   return {
     props: {
       characters: data.characters.results
@@ -27,7 +28,9 @@ export async function getStaticProps() {
 }
 
 export default function Home({ characters }) {
-  console.log(characters)
+  const [searchinput, setSearch] = useState('');
+
+  console.log(searchinput)
   return (
     <div className={styles.container}>
       <Head>
@@ -44,14 +47,14 @@ export default function Home({ characters }) {
           Get started by editing{' '}
           <code className={styles.code}>pages/index.js</code>
         </p>
-
+        <input type="text" placeholder="search character" onChange={event => setSearch(event.target.value)}/>
         <div className={styles.grid}>
           {characters.map((character) => (
             <div key={character.name} className={styles.card}>
               <h3>{character.name}</h3>
               <img src={character.image} alt={character.name}/>
               <p>
-                {character.status}
+                Status : {character.status}
               </p>
             </div>
           ))}
